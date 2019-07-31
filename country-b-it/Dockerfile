@@ -1,4 +1,4 @@
-FROM openjdk:8-jre
+FROM openjdk:8-jdk
 
 ENV CATALINA_HOME /usr/local/tomcat
 ENV EPSOS_PROPS_PATH /opt/openncp-configuration/
