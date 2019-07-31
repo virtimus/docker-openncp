@@ -23,7 +23,7 @@ ENV OPENSSL_VERSION 1.1.0f-3+deb9u2
 
 RUN mkdir ~/.gnupg
 RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
-RUN apt-get update && apt-get install -y openjdk-8-jdk mavenv git
+RUN apt-get update && apt-get install -y openjdk-8-jdk maven git
 
 RUN set -ex; \
 	currentVersion="$(dpkg-query --show --showformat '${Version}\n' openssl)"; \
