@@ -1,4 +1,4 @@
-FROM openjdk:8-jre
+FROM openjdk:8-jdk
 
 ENV CATALINA_HOME /usr/local/tomcat
 ENV EPSOS_PROPS_PATH /opt/openncp-configuration/
@@ -83,7 +83,7 @@ RUN set -eux; \
 	\
 	export GNUPGHOME="$(mktemp -d)"; \
 	for key in $GPG_KEYS; do \
-		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+		gpg --keyserver ipv4.pool.sks-keyservers.net --recv-keys "$key"; \
 	done; \
 	\
 	apt-get install -y --no-install-recommends wget ca-certificates; \
@@ -122,7 +122,7 @@ RUN set -eux; \
 		libapr1-dev \
 		libssl-dev \
 		make \
-		"openjdk-${JAVA_VERSION%%[.~bu-]*}-jdk=$JAVA_DEBIAN_VERSION" \
+		"openjdk-${JAVA_VERSION%%[.~bu-]*}-jdk" \
 	; \
 	( \
 		export CATALINA_HOME="$PWD"; \
@@ -176,7 +176,16 @@ COPY ./country-a-es/tomcat-conf/conf-files/setenv.sh /usr/local/tomcat/bin/
 COPY ./wars/openatna-web.war /usr/local/tomcat/webapps/
 COPY ./wars/TRC-STS.war /usr/local/tomcat/webapps/
 COPY ./wars/openncp-client-connector.war /usr/local/tomcat/webapps/
-COPY ./wars/openncp-ws-server.war /usr/local/tomcat/webapps/
+#COPY ./wars/openncp-ws-server.war /usr/local/tomcat/webapps/
 COPY ./wars/openncp-gateway.war /usr/local/tomcat/webapps/
+#from source
+RUN apt-get update && apt-get install -y openjdk-8-jdk maven git
+RUN mkdir -p /src && cd /src && git clone https://ec.europa.eu/cefdigital/code/scm/ehncp/ehealth.git \
+	&& cd ehealth \
+	&& export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m" \
+	&& mvn clean package install -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
+
+RUN cp /src/ehealth/./protocol-terminators/epsos-ncp-server/epsos-ws-server/target/openncp-ws-server.war /usr/local/tomcat/webapps/
+
 
 
